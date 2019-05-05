@@ -16,6 +16,10 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.Http;
+using BackendAndroid.BLL.Abstraction;
+using BackendAndroid.BLL.Implementation;
 
 namespace BackendAndroid
 {
@@ -34,6 +38,7 @@ namespace BackendAndroid
             services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
+            services.AddScoped<IFileService, FileService>();
             //This line adds Swagger generation services to our container.
             services.AddSwaggerGen(c =>
             {
@@ -73,6 +78,13 @@ namespace BackendAndroid
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseMvc();
+            app.UseStaticFiles();
+
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"Uploaded\UserImages")),
+                RequestPath = new PathString("/UserImages")
+            });
 
             //This line enables the app to use Swagger, with the configuration in the ConfigureServices method.
             app.UseSwagger();
